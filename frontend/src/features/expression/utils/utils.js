@@ -4,7 +4,7 @@ import {
 } from "@mediapipe/tasks-vision";
 
 
-const init = async ({landmarkerRef, videoRef, streamRef}) => {
+export const init = async ({landmarkerRef, videoRef, streamRef}) => {
     const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
@@ -26,7 +26,7 @@ const init = async ({landmarkerRef, videoRef, streamRef}) => {
     // detect();
 };
 
-const detect = () => {
+export const detect = ({landmarkerRef, videoRef, setExpression}) => {
     if (!landmarkerRef.current || !videoRef.current) {
         setExpression("Model not ready");
         return;
