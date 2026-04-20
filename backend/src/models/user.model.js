@@ -1,41 +1,28 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-// Define the User Schema
-const userSchema = mongoose.Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: [true, "Username is required"],
-        trim: true,
-        unique: [true, "Username is unique"],
+        required: [ true, "Username is required" ],
+        unique: [ true, "Username must be unique" ]
     },
     email: {
         type: String,
-        required: [true, "Username is required"],
-        unique: [true, "Username is unique"],
+        required: [ true, "Email is required" ],
+        unique: [ true, "Email must be unique" ]
     },
     password: {
         type: String,
-        required: true,
-        select: false // Prevents password from being returned in queries by default
+        required: [ true, "Password is required" ],
+        select: false
     }
-    // profileImage: {
-    //     type: String,
-    //     default: 'default.png'
-    // },
-    // // Array of ObjectIds to link to the Liked Songs or Moods
-    // likedSongs: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'song'
-    // }],
-    // playlist: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'playlist'
-    // }]
-}, { timestamps: true }); // Automatically adds createdAt and updatedAt
+})
+
+// TASK
+// userSchema.pre("save", function (next) { })
+// userSchema.post("save", function (next) { })
 
 
-const userModel= mongoose.model("user", userSchema); 
-// userSchema.pre("save", function (next) {})
-// userSchema.post("save", function (next) {})
+const userModel = mongoose.model("users", userSchema);
 
 module.exports = userModel;

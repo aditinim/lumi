@@ -4,33 +4,31 @@ import {
 } from "@mediapipe/tasks-vision";
 
 
-export const init = async ({landmarkerRef, videoRef, streamRef}) => {
+export const init = async ({ landmarkerRef, videoRef, streamRef }) => {
     const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
     );
+
     landmarkerRef.current = await FaceLandmarker.createFromOptions(
         vision,
         {
             baseOptions: {
                 modelAssetPath:
-                    "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+                    "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task"
             },
             outputFaceBlendshapes: true,
             runningMode: "VIDEO",
             numFaces: 1
         }
     );
+
     streamRef.current = await navigator.mediaDevices.getUserMedia({ video: true });
     videoRef.current.srcObject = streamRef.current;
     await videoRef.current.play();
-    // detect();
 };
 
-export const detect = ({landmarkerRef, videoRef, setExpression}) => {
-    if (!landmarkerRef.current || !videoRef.current) {
-        setExpression("Model not ready");
-        return;
-    }
+export const detect = ({ landmarkerRef, videoRef, setExpression }) => {
+    if (!landmarkerRef.current || !videoRef.current) return;
 
     const results = landmarkerRef.current.detectForVideo(
         videoRef.current,
@@ -38,7 +36,8 @@ export const detect = ({landmarkerRef, videoRef, setExpression}) => {
     );
 
     if (results.faceBlendshapes?.length > 0) {
-        const blendshapes = results.faceBlendshapes[0].categories;
+        const blendshapes = results.faceBlendshapes[ 0 ].categories;
+
         const getScore = (name) =>
             blendshapes.find((b) => b.categoryName === name)?.score || 0;
 
@@ -49,21 +48,20 @@ export const detect = ({landmarkerRef, videoRef, setExpression}) => {
         const frownLeft = getScore("mouthFrownLeft");
         const frownRight = getScore("mouthFrownRight");
 
+        console.log(getScore("mouthFrownLeft"))
+
         let currentExpression = "Neutral";
 
         if (smileLeft > 0.5 && smileRight > 0.5) {
-            currentExpression = "Happy 😄";
-        } else if (jawOpen > 0.6 && browUp > 0.2) {
-            currentExpression = "Surprised 😲";
-        } else if (frownLeft > 0.2 && frownRight > 0.2) {
-            currentExpression = "Sad 😢";
+            currentExpression = "happy";
+        } else if (jawOpen > 0.2 && browUp > 0.2) {
+            currentExpression = "surprised";
+        } else if (frownLeft > 0.0001 && frownRight > 0.0001) {
+            currentExpression = "sad";
         }
 
         setExpression(currentExpression);
-    }
-    else {
-        setExpression("Face not detected");
-    }
-    // animationRef.current = requestAnimationFrame(detect);
 
+        return currentExpression
+    }
 };
